@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Цветная память - Игра для телефона</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .game-container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            width: 95%;
+            max-width: 500px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-top: 0;
+        }
+        
+        .level-info {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .color-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .color-btn {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            touch-action: manipulation;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .color-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .color-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .color-btn.flash {
+            opacity: 0.4;
+            transform: scale(0.98);
+        }
+        
+        .status {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 15px;
+            background: #f0f0f0;
+        }
+        
+        .score {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .top-section {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        
+        .top-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .top-list {
+            font-size: 14px;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .top-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 5px;
+            touch-action: manipulation;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        @media (max-width: 600px) {
+            .color-panel {
+                gap: 10px;
+            }
+            .status {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎨 Цветная память</h1>
+        <div class="level-info">
+            Уровень: <span id="level">1</span>
+        </div>
+        <div class="score">
+            🏆 Счет: <span id="score">0</span>
+        </div>
+        <div class="score">
+            🌟 Рекорд: <span id="bestScore">0</span>
+        </div>
+        <div class="color-panel">
+            <div class="color-btn" id="color1" style="background: #ff4757;"></div>
+            <div class="color-btn" id="color2" style="background: #4CAF50;"></div>
+            <div class="color-btn" id="color3" style="background: #2196F3;"></div>
+            <div class="color-btn" id="color4" style="background: #ffd700;"></div>
+        </div>
+        <div class="status" id="status">
+            👆 Нажми "Старт"
+        </div>
+        <div>
+            <button onclick="startGame()">🎮 Старт</button>
+            <button onclick="resetGame()">🔄 Сброс</button>
+        </div>
+        
+        <div class="top-section">
+            <div class="top-title">🏆 Топ-10 игроков</div>
+            <div class="top-list" id="topList">
+                Загрузка...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== НАСТРОЙКИ ==========
+        const GAME_NAME = "color_memory";  // ← УНИКАЛЬНОЕ ИМЯ ИГРЫ
+        
+        // API URL (автоматически определяет сервер)
+        const API_URL = window.location.origin;
+        
+        // ========== ДАННЫЕ ИГРОКА (из Telegram) ==========
+        let tg = null;
+        let userId = null;
+        let username = "Игрок";
+        
+        try {
+            tg = window.Telegram?.WebApp;
+            if (tg) {
+                tg.ready();
+                tg.expand();
+                const user = tg.initDataUnsafe?.user;
+                if (user) {
+                    userId = user.id;
+                    username = user.username || user.first_name || "Игрок";
+                }
+            }
+        } catch(e) {
+            console.log("Не в Telegram:", e);
+        }
+        
+        // Если не в Telegram — тестовый пользователь
+        if (!userId) {
+            userId = Math.floor(Math.random() * 100000);
+            username = "Тестер_" + userId;
+        }
+        
+        console.log(`Игрок: ${username} (${userId})`);
+        console.log(`Игра: ${GAME_NAME}`);
+        
+        // ========== ИГРОВЫЕ ПЕРЕМЕННЫЕ ==========
+        const colors = ['#ff4757', '#4CAF50', '#2196F3', '#ffd700'];
+        let sequence = [];
+        let playerSequence = [];
+        let level = 1;
+        let score = 0;
+        let isPlaying = false;
+        let isWaiting = false;
+        let currentBest = 0;
+        
+        // ========== API ФУНКЦИИ ==========
+        async function loadTop() {
+            try {
+                const url = `${API_URL}/api/top?game=${GAME_NAME}&limit=10`;
+                const response = await fetch(url);
+                const topList = await response.json();
+                
+                const container = document.getElementById('topList');
+                if (topList.length === 0) {
+                    container.innerHTML = '<div class="top-item">Пока нет рекордов</div>';
+                    return;
+                }
+                
+                container.innerHTML = topList.map((item, idx) => `
+                    <div class="top-item">
+                        <span>${idx + 1}. ${item.username}</span>
+                        <span>🏆 ${item.score}</span>
+                    </div>
+                `).join('');
+            } catch(e) {
+                console.error("Ошибка загрузки топа:", e);
+                document.getElementById('topList').innerHTML = '<div class="top-item">Ошибка загрузки</div>';
+            }
+        }
+        
+        async function loadUserBest() {
+            try {
+                const url = `${API_URL}/api/user_score?game=${GAME_NAME}&user_id=${userId}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                currentBest = data.score || 0;
+                document.getElementById('bestScore').innerText = currentBest;
+            } catch(e) {
+                console.error("Ошибка загрузки рекорда:", e);
+            }
+        }
+        
+        async function saveScoreIfBetter(score) {
+            if (score <= currentBest) return false;
+            
+            try {
+                const url = `${API_URL}/api/score?game=${GAME_NAME}&user_id=${userId}&username=${encodeURIComponent(username)}&score=${score}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.new_record) {
+                    currentBest = score;
+                    document.getElementById('bestScore').innerText = currentBest;
+                    loadTop(); // обновляем топ
+                    
+                    // Уведомляем в Telegram
+                    if (tg) {
+                        tg.showPopup({
+                            title: "🎉 Новый рекорд!",
+                            message: `Твой счёт: ${score}`,
+                            buttons: [{type: "ok"}]
+                        });
+                    }
+                    return true;
+                }
+            } catch(e) {
+                console.error("Ошибка сохранения:", e);
+            }
+            return false;
+        }
+        
+        // ========== ИГРОВАЯ ЛОГИКА ==========
+        function startGame() {
+            if(isPlaying) return;
+            resetGame();
+            nextRound();
+        }
+        
+        function nextRound() {
+            isPlaying = true;
+            isWaiting = false;
+            playerSequence = [];
+            
+            const randomColor = Math.floor(Math.random() * 4);
+            sequence.push(randomColor);
+            
+            updateStatus(`Уровень ${level}. Смотри внимательно!`);
+            showSequence();
+        }
+        
+        function showSequence() {
+            let i = 0;
+            const interval = setInterval(() => {
+                if(i >= sequence.length) {
+                    clearInterval(interval);
+                    isWaiting = true;
+                    updateStatus(`Твоя очередь! Повтори ${sequence.length} цветов`);
+                    enableButtons(true);
+                    return;
+                }
+                flashColor(sequence[i]);
+                i++;
+            }, 600);
+        }
+        
+        function flashColor(colorIndex) {
+            const btn = document.getElementById(`color${colorIndex + 1}`);
+            btn.classList.add('flash');
+            playBeep(colorIndex);
+            setTimeout(() => {
+                btn.classList.remove('flash');
+            }, 300);
+        }
+        
+        function playBeep(colorIndex) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 440 + colorIndex * 100;
+                gainNode.gang.value = 0.1;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
+                oscillator.stop(audioContext.currentTime + 0.3);
+                setTimeout(() => audioContext.close(), 350);
+            } catch(e) {}
+        }
+        
+        async function handleColorClick(colorIndex) {
+            if(!isWaiting || !isPlaying) return;
+            
+            playerSequence.push(colorIndex);
+            flashColor(colorIndex);
+            
+            if('vibrate' in navigator) {
+                navigator.vibrate(20);
+            }
+            
+            const currentIndex = playerSequence.length - 1;
+            if(playerSequence[currentIndex] !== sequence[currentIndex]) {
+                // Игра окончена
+                updateStatus(`❌ Неправильно! Игра окончена! Счёт: ${score}`);
+                isPlaying = false;
+                isWaiting = false;
+                enableButtons(false);
+                
+                // Сохраняем рекорд
+                await saveScoreIfBetter(score);
+                await loadTop();
+                return;
+            }
+            
+            if(playerSequence.length === sequence.length) {
+                level++;
+                score += level * 10;
+                updateScore();
+                updateStatus(`✅ Правильно! Уровень ${level}`);
+                isWaiting = false;
+                enableButtons(false);
+                setTimeout(() => nextRound(), 1000);
+            }
+        }
+        
+        function enableButtons(enabled) {
+            for(let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`color${i}`);
+                if(enabled) {
+                    btn.classList.remove('disabled');
+                    btn.onclick = () => handleColorClick(i-1);
+                } else {
+                    btn.classList.add('disabled');
+                    btn.onclick = null;
+                }
+            }
+        }
+        
+        function updateStatus(message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                statusDiv.style.transform = 'scale(1)';
+            }, 200);
+        }
+        
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+        }
+        
+        function resetGame() {
+            sequence = [];
+            playerSequence = [];
+            level = 1;
+            score = 0;
+            isPlaying = false;
+            isWaiting = false;
+            updateScore();
+            updateStatus('👆 Нажми "Старт" для новой игры');
+            enableButtons(false);
+        }
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        async function init() {
+            enableButtons(false);
+            await loadTop();
+            await loadUserBest();
+            console.log(`Игра "${GAME_NAME}" готова!`);
+        }
+        
+        init();
+    </script>
+</body>
+</html>
