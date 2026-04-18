@@ -24,11 +24,6 @@ msg = """
 
 @dp.message(Command("post"))
 async def post_cmd(message: types.Message):
-    user = message.from_user
-
-    if message.from_user.id not in ADMIN_IDS:
-        await message.reply("Иди нахуй")
-        return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📝 ИНФА И ПРАВИЛА", url="https://t.me/c/1657644603/411360/603092")],
