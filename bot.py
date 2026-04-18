@@ -5,7 +5,6 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.filters import Command
 from aiogram.types import FSInputFile
-from urllib.parse import urlencode
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 ADMIN_IDS = [1723402881]
@@ -24,6 +23,9 @@ msg = """
 
 @dp.message(Command("post"))
 async def post_cmd(message: types.Message):
+    if message.from_user.id not in ADMIN_IDS:
+        await message.reply("Иди нахуй")
+        return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📝 ИНФА И ПРАВИЛА", url="https://t.me/c/1657644603/411360/603092")],
