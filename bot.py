@@ -25,6 +25,7 @@ msg = """
 @dp.message(Command("post"))
 async def post_cmd(message: types.Message):
     if message.from_user.id not in ADMIN_IDS:
+        await message.reply_to_message.reply("Иди нахуй")
         return
     
     user = message.from_user
