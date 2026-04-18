@@ -5,10 +5,9 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.filters import Command
 
-WEBAPP_URL = os.environ.get("URL1")
-WEBAPP_URL2 = os.environ.get("URL2")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-bot = Bot(os.environ.get("BOT_TOKEN"))
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 msg = """
@@ -22,13 +21,13 @@ msg = """
 @dp.message(Command("start"))
 async def start_cmd(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Подробности", web_app=WebAppInfo(url=WEBAPP_URL))]
-        [InlineKeyboardButton(text="Прогнозы", web_app=WebAppInfo(url=WEBAPP_URL2))]
+        [InlineKeyboardButton(text="Подробности", web_app=WebAppInfo(url="https://compassionate-amazement-production-b6b2.up.railway.app"))]
+        [InlineKeyboardButton(text="Прогнозы", web_app=WebAppInfo(url="https://site2-production-29a1.up.railway.app"))]
     ])
     await message.answer(msg, reply_markup=keyboard)
 
 async def main():
-    print("✅ Бот запущен!")
+    print("✅ Бот запущен! v1.1")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
