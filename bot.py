@@ -24,8 +24,8 @@ msg = """
 async def start_cmd(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📝 ИНФА И ПРАВИЛА", url="https://t.me/c/1657644603/411360/603092")],
-        [InlineKeyboardButton(text="🎬 ВИДЕО ЖЕРЕБЬЁВКИ", url="https://t.me/c/1657644603/411360/610175"),
-         InlineKeyboardButton(text="⚙️ ТУРНИРНАЯ СЕТКА", url="https://t.me/c/1657644603/411360/615492")],
+        [InlineKeyboardButton(text="🎬 ЖЕРЕБЬЁВКА", url="https://t.me/c/1657644603/411360/610175"),
+         InlineKeyboardButton(text="⚙️ ТУР СЕТКА", url="https://t.me/c/1657644603/411360/615492")],
         [InlineKeyboardButton(text="✅ ПРОГНОЗЫ", url="https://site2-production-29a1.up.railway.app")]
     ])
     await message.answer_photo(photo=FSInputFile("setka.jpg"), parse_mode="HTML", caption=msg, reply_markup=keyboard)
