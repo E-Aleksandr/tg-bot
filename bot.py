@@ -4,6 +4,7 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from aiogram.filters import Command
+from aiogram.types import FSInputFile
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
@@ -21,12 +22,12 @@ msg = """
 @dp.message(Command("start"))
 async def start_cmd(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📝ИНФА И ПРАВИЛА", url="https://t.me/c/1657644603/411360/603092")],
-        [InlineKeyboardButton(text="🎬ВИДЕО ЖЕРЕБЬЁВКИ", url="https://t.me/c/1657644603/411360/610175"),
-         InlineKeyboardButton(text="⚙️ТУРНИРНАЯ СЕТКА", url="https://t.me/c/1657644603/411360/615492")],
-         [InlineKeyboardButton(text="✅ПРОГНОЗЫ", web_app=WebAppInfo(url="https://site2-production-29a1.up.railway.app"))]
+        [InlineKeyboardButton(text="📝 ИНФА И ПРАВИЛА", url="https://t.me/c/1657644603/411360/603092")],
+        [InlineKeyboardButton(text="🎬 ВИДЕО ЖЕРЕБЬЁВКИ", url="https://t.me/c/1657644603/411360/610175"),
+         InlineKeyboardButton(text="⚙️ ТУРНИРНАЯ СЕТКА", url="https://t.me/c/1657644603/411360/615492")],
+         [InlineKeyboardButton(text="✅ ПРОГНОЗЫ", web_app=WebAppInfo(url="https://site2-production-29a1.up.railway.app"))]
     ])
-    await message.answer_photo(photo= "setka.jpg", caption=msg, reply_markup=keyboard)
+    await message.answer_photo(photo=FSInputFile("setka.jpg"), caption=msg, reply_markup=keyboard)
 
 async def main():
     print("✅ Бот запущен! v1.1")
