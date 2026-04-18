@@ -24,12 +24,13 @@ msg = """
 
 @dp.message(Command("post"))
 async def post_cmd(message: types.Message):
+    user = message.from_user
+    username = user.username or f"user_{user.id}"
+    
     if message.from_user.id not in ADMIN_IDS:
         await message.reply("Иди нахуй")
         return
     
-    user = message.from_user
-    username = user.username or f"user_{user.id}"
     params = urlencode({"username": username, "user_id": user.id})
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
