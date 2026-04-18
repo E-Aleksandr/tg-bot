@@ -18,19 +18,14 @@ msg = """
 
 Участники делятся на пары, затем составляется турнирная сетка. Происходит PvP сражение между командами, победитель переходит в следующий раунд. Лучший дуэт побеждает в турнире.
 """
-@dp.message(Command("start"))
-async def start_cmd(message: types.Message):
-    await message.answer("Бот готов!")
 
-@dp.message(Command("post"))
+@dp.message(Command("start"))
 async def start_cmd(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Подробности", web_app=WebAppInfo(url=WEBAPP_URL))]
-    ])
-    keyboard2 = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Прогнозы", web_app=WebAppInfo(url=WEBAPP_URL2))]
     ])
-    await message.answer(msg, reply_markup=keyboard, reply_markup=keyboard2)
+    await message.answer(msg, reply_markup=keyboard)
 
 async def main():
     print("✅ Бот запущен!")
