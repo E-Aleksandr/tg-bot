@@ -21,7 +21,7 @@ msg = """
 @dp.message(Command("start"))
 async def start_cmd(message: types.Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Подробности", web_app=WebAppInfo(url="https://compassionate-amazement-production-b6b2.up.railway.app"))],
+        [InlineKeyboardButton(text="Подробности", web_app=WebAppInfo(url="https://telegra.ph/V-DVA-STVOLA-04-18-3"))],
         [InlineKeyboardButton(text="Прогнозы", web_app=WebAppInfo(url="https://site2-production-29a1.up.railway.app"))]
     ])
     await message.answer(msg, reply_markup=keyboard)
