@@ -28,11 +28,7 @@ async def start_cmd(message: types.Message):
          InlineKeyboardButton(text="⚙️ ТУР СЕТКА", url="https://t.me/c/1657644603/411360/615492")],
         [InlineKeyboardButton(text="✅ ПРОГНОЗЫ", url="https://site2-production-29a1.up.railway.app")]
     ])
-    keyboard2 = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="✅ ПРОГНОЗЫ", web_app=WebAppInfo(url="https://site2-production-29a1.up.railway.app"))]
-    ])
     await message.answer_photo(photo=FSInputFile("setka.jpg"), parse_mode="HTML", caption=msg, reply_markup=keyboard)
-    await message.answer(reply_markup=keyboard2)
 
 async def main():
     print("✅ Бот запущен! v1.1")
