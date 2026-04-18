@@ -25,24 +25,21 @@ msg = """
 @dp.message(Command("post"))
 async def post_cmd(message: types.Message):
     user = message.from_user
-    username = user.username or f"user_{user.id}"
-    
+
     if message.from_user.id not in ADMIN_IDS:
         await message.reply("Иди нахуй")
         return
-    
-    params = urlencode({"username": username, "user_id": user.id})
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📝 ИНФА И ПРАВИЛА", url="https://t.me/c/1657644603/411360/603092")],
         [InlineKeyboardButton(text="🎬 ЖЕРЕБЬЁВКА", url="https://t.me/c/1657644603/411360/610175"),
          InlineKeyboardButton(text="⚙️ ТУР СЕТКА", url="https://t.me/c/1657644603/411360/615492")],
-        [InlineKeyboardButton(text="✅ ПРОГНОЗЫ", url=f"https://site2-production-29a1.up.railway.app?{params}")]
+        [InlineKeyboardButton(text="✅ ПРОГНОЗЫ", url="https://site2-production-29a1.up.railway.app")]
     ])
     await message.answer_photo(photo=FSInputFile("setka.jpg"), parse_mode="HTML", caption=msg, reply_markup=keyboard)
 
 async def main():
-    print("✅ Бот запущен! v1.1")
+    print("✅ Бот запущен! v1.2")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
