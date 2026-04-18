@@ -26,7 +26,7 @@ async def start_cmd(message: types.Message):
          InlineKeyboardButton(text="⚙️ТУРНИРНАЯ СЕТКА", web_app=WebAppInfo(url="https://t.me/c/1657644603/411360/615492"))],
          [InlineKeyboardButton(text="✅ПРОГНОЗЫ", web_app=WebAppInfo(url="https://site2-production-29a1.up.railway.app"))]
     ])
-    await message.answer(msg, reply_markup=keyboard)
+    await message.answer(photo= "setka.jpg", caption=msg, reply_markup=keyboard)
 
 async def main():
     print("✅ Бот запущен! v1.1")
